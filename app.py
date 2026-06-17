@@ -108,10 +108,11 @@ if len(df) > 0:
 
     st.success(f"🏆 Leading Team: {team_leader['Team']} — {team_leader['Points']} pts")
 
+    # Layout: chart (left) | tables stacked (right)
     col1, col2 = st.columns([2, 1])
 
     # -----------------------------
-    # 📊 TEAM BAR CHART
+    # 📊 TEAM BAR CHART (LEFT)
     # -----------------------------
     with col1:
         st.subheader("📊 Team Scores")
@@ -121,7 +122,7 @@ if len(df) > 0:
         colors = []
         for team in df["Team"]:
             if team == team_leader["Team"]:
-                colors.append("#FFD700")
+                colors.append("#FFD700")  # gold
             else:
                 colors.append(TEAM_COLORS.get(team, "#cccccc"))
 
@@ -146,6 +147,32 @@ if len(df) > 0:
 
         plt.tight_layout()
         st.pyplot(fig)
+
+    # -----------------------------
+    # 📋 RIGHT COLUMN (STACKED TABLES)
+    # -----------------------------
+    with col2:
+
+        # Team ranking
+        st.subheader("📋 Team Ranking")
+
+        df_display = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+        df_display.index += 1
+        st.dataframe(df_display, use_container_width=True)
+
+        # Add small spacing
+        st.markdown("---")
+
+        # Top players
+        st.subheader("🥇 Best Player")
+
+        leaders_df_display = leaders_df.copy().reset_index(drop=True)
+        leaders_df_display.index += 1
+
+        st.dataframe(leaders_df_display, use_container_width=True)
+
+else:
+    st.error("No data available")
 
     # -----------------------------
     # 📋 TEAM TABLE
