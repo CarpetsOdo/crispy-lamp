@@ -36,7 +36,6 @@ def get_group_data(url):
         total = 0
         leader_name = "N/A"
         leader_points = 0
-
         first_row_found = False
 
         for row in rows:
@@ -49,7 +48,6 @@ def get_group_data(url):
 
                     total += pts
 
-                    # first valid row = leader
                     if not first_row_found:
                         leader_name = name
                         leader_points = pts
@@ -65,7 +63,7 @@ def get_group_data(url):
 
 
 # -----------------------------
-# PAGE
+# PAGE SETUP
 # -----------------------------
 st.set_page_config(page_title="Kicktipp Team Battle", layout="wide")
 
@@ -84,141 +82,93 @@ leader_results = []
 for team, url in GROUPS.items():
     total, leader_name, leader_points = get_group_data(url)
 
-    team_results.append({"Team": team, "Points": total})
+    team_results.append({
+        "Team": team,
+        "Points": total
+    })
+
     leader_results.append({
         "Team": team,
         "Leader": leader_name,
         "Points": leader_points
     })
 
-
 df = pd.DataFrame(team_results)
-df = df.sort_values(by="Points", ascending=True)
-
 leaders_df = pd.DataFrame(leader_results)
-leaders_df = leaders_df.sort_values(by="Points", ascending=False)
+
+# Safety check
+if len(df) == 0:
+    st.error("No data available")
+    st.stop()
+
+# Sort for chart
+df_chart = df.sort_values(by="Points", ascending=True)
+df_table = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+df_table.index += 1
+
+leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+leaders_table.index += 1
+
 
 # -----------------------------
 # DISPLAY
 # -----------------------------
-if len(df) > 0:
+team_leader = df_table.iloc[0]
 
-    team_leader = df.iloc[-1]
+st.success(f"🏆 Leading Team: {team_leader['Team']} — {team_leader['Points']} pts")
 
-    st.success(f"🏆 Leading Team: {team_leader['Team']} — {team_leader['Points']} pts")
+col1, col2 = st.columns([2, 1])
 
-    # Layout: chart (left) | tables stacked (right)
-    col1, col2 = st.columns([2, 1])
+# -----------------------------
+# LEFT: CHART
+# -----------------------------
+with col1:
+    st.subheader("📊 Team Scores")
 
-    # -----------------------------
-    # 📊 TEAM BAR CHART (LEFT)
-    # -----------------------------
-    with col1:
-        st.subheader("📊 Team Scores")
+    fig, ax = plt.subplots(figsize=(6, 3.5))
 
-        fig, ax = plt.subplots(figsize=(6, 3.5))
+    colors = []
+    for team in df_chart["Team"]:
+        if team == team_leader["Team"]:
+            colors.append("#FFD700")
+        else:
+            colors.append(TEAM_COLORS.get(team, "#cccccc"))
 
-        colors = []
-        for team in df["Team"]:
-            if team == team_leader["Team"]:
-                colors.append("#FFD700")  # gold
-            else:
-                colors.append(TEAM_COLORS.get(team, "#cccccc"))
+    bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.5)
 
-        bars = ax.barh(df["Team"], df["Points"], color=colors, height=0.5)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
+    ax.tick_params(left=False, bottom=False)
 
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-        ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
-        ax.tick_params(left=False, bottom=False)
+    max_val = df_chart["Points"].max()
 
-        max_val = max(df["Points"]) if len(df) > 0 else 1
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(
+            width + max_val * 0.01,
+            bar.get_y() + bar.get_height() / 2,
+            f"{int(width)}",
+            va='center',
+            fontsize=10
+        )
 
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(
-                width + max_val * 0.01,
-                bar.get_y() + bar.get_height() / 2,
-                f"{int(width)}",
-                va='center',
-                fontsize=10
-            )
+    plt.tight_layout()
+    st.pyplot(fig)
 
-        plt.tight_layout()
-        st.pyplot(fig)
 
-    # -----------------------------
-    # 📋 RIGHT COLUMN (STACKED TABLES)
-    # -----------------------------
-    with col2:
+# -----------------------------
+# RIGHT: STACKED TABLES
+# -----------------------------
+with col2:
 
-        # Team ranking
-        st.subheader("📋 Team Ranking")
+    st.subheader("📋 Team Ranking")
+    st.dataframe(df_table, use_container_width=True, height=200)
 
-        df_display = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-        df_display.index += 1
-        st.dataframe(df_display, use_container_width=True)
+    st.markdown("---")
 
-        # Add small spacing
-        st.markdown("---")
-
-        # Top players
-        st.subheader("🥇 Best Player")
-
-        leaders_df_display = leaders_df.copy().reset_index(drop=True)
-        leaders_df_display.index += 1
-
-        st.dataframe(leaders_df_display, use_container_width=True)
-
-else:
-    st.error("No data available")
-
-    # -----------------------------
-    # 📋 RIGHT COLUMN (STACKED TABLES)
-    # -----------------------------
-    with col2:
-
-        # Team ranking
-        st.subheader("📋 Team Ranking")
-
-        df_display = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-        df_display.index += 1
-        st.dataframe(df_display, use_container_width=True)
-
-        # Add small spacing
-        st.markdown("---")
-
-        # Top players
-        st.subheader("🥇 Best Player")
-
-        leaders_df_display = leaders_df.copy().reset_index(drop=True)
-        leaders_df_display.index += 1
-
-        st.dataframe(leaders_df_display, use_container_width=True)
-
-else:
-    st.error("No data available")
-
-    # -----------------------------
-    # 📋 TEAM TABLE
-    # -----------------------------
-    with col2:
-        st.subheader("📋 Team Ranking")
-
-        df_display = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-        df_display.index += 1
-        st.dataframe(df_display, use_container_width=True)
-
-    # -----------------------------
-    # 🧍 TOP PLAYER SECTION
-    # -----------------------------
-    st.subheader("🥇 Best Player per Team")
-
-    leaders_df.index += 1
-    st.dataframe(leaders_df, use_container_width=True)
-
-else:
-    st.error("No data available")
+    st.subheader("🥇 Best Player")
+    st.dataframe(leaders_table, use_container_width=True, height=200)
 
 
 # -----------------------------
@@ -233,3 +183,4 @@ st.markdown(
     '<meta http-equiv="refresh" content="60">',
     unsafe_allow_html=True
 )
+``
