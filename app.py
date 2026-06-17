@@ -98,7 +98,6 @@ df = df.sort_values(by="Points", ascending=True)
 leaders_df = pd.DataFrame(leader_results)
 leaders_df = leaders_df.sort_values(by="Points", ascending=False)
 
-
 # -----------------------------
 # DISPLAY
 # -----------------------------
@@ -147,6 +146,32 @@ if len(df) > 0:
 
         plt.tight_layout()
         st.pyplot(fig)
+
+    # -----------------------------
+    # 📋 RIGHT COLUMN (STACKED TABLES)
+    # -----------------------------
+    with col2:
+
+        # Team ranking
+        st.subheader("📋 Team Ranking")
+
+        df_display = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+        df_display.index += 1
+        st.dataframe(df_display, use_container_width=True)
+
+        # Add small spacing
+        st.markdown("---")
+
+        # Top players
+        st.subheader("🥇 Best Player")
+
+        leaders_df_display = leaders_df.copy().reset_index(drop=True)
+        leaders_df_display.index += 1
+
+        st.dataframe(leaders_df_display, use_container_width=True)
+
+else:
+    st.error("No data available")
 
     # -----------------------------
     # 📋 RIGHT COLUMN (STACKED TABLES)
