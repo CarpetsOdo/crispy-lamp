@@ -41,12 +41,14 @@ def get_group_data(url):
         for row in rows:
             cols = row.find_all("td")
 
-            # Must have at least 4 columns to safely capture column index 3 ("T")
+            # Ensure the row has a reasonable number of columns
             if len(cols) >= 4:
                 try:
                     name = cols[1].text.strip()
-                    # cols[3] targets the total points ("T") instead of matchday points
-                    pts = int(cols[3].text.strip().replace(".", "").replace(",", ""))
+                    
+                    # cols[-1] dynamically grabs the very last column ("T") on the right
+                    pts_str = cols[-1].text.strip().replace(".", "").replace(",", "")
+                    pts = int(pts_str)
 
                     total += pts
 
@@ -55,7 +57,7 @@ def get_group_data(url):
                         leader_points = pts
                         first_row_found = True
 
-                except:
+                except Exception as e:
                     pass
 
         return total, leader_name, leader_points
