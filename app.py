@@ -197,9 +197,9 @@ with col2:
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
 if not all_players_table.empty:
-    # Setting height=None completely removes the inner scrollbar 
-    # and lets the table stretch to its maximum size.
-    st.dataframe(all_players_table, use_container_width=True, height=None)
+    # st.table automatically expands vertically to show all rows 
+    # without any internal scrollbars.
+    st.table(all_players_table)
 else:
     st.warning("No player data could be retrieved.")
 
