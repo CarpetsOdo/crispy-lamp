@@ -37,16 +37,13 @@ def get_group_data(url, team_name):
         for row in rows:
             cols = row.find_all("td")
 
-            # Ensure the row has a reasonable number of columns
             if len(cols) >= 4:
                 try:
                     name = cols[1].text.strip()
                     
-                    # Skip players named "admin" (case-insensitive)
                     if name.lower() == "admin":
                         continue
                         
-                    # cols[-1] dynamically grabs the very last column ("T") on the right
                     pts_str = cols[-1].text.strip().replace(".", "").replace(",", "")
                     pts = int(pts_str)
 
@@ -85,17 +82,14 @@ for team, url in GROUPS.items():
     group_players = get_group_data(url, team)
     
     if group_players:
-        # Accumulate all players for the bottom list
         all_players_list.extend(group_players)
         
-        # Calculate team totals
         total_pts = sum(p["Points"] for p in group_players)
         team_results.append({
             "Team": team,
             "Points": total_pts
         })
         
-        # Identify group leader (assumes the source HTML table is already sorted by Kicktipp)
         leader = group_players[0]
         leader_results.append({
             "Team": team,
@@ -103,7 +97,6 @@ for team, url in GROUPS.items():
             "Points": leader["Points"]
         })
     else:
-        # Fallback if scraping fails for a specific team
         team_results.append({"Team": team, "Points": 0})
         leader_results.append({"Team": team, "Leader": "Error", "Points": 0})
 
@@ -111,16 +104,14 @@ df = pd.DataFrame(team_results)
 leaders_df = pd.DataFrame(leader_results)
 all_players_df = pd.DataFrame(all_players_list)
 
-# Safety check
 if len(df) == 0:
     st.error("No data available")
     st.stop()
 
-# Sort dataframes
+# Sort DataFrames
 df_chart = df.sort_values(by="Points", ascending=True)
-df_table = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-df_table.index += 1
 
+# Process Leaderboards
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
@@ -131,74 +122,72 @@ else:
     all_players_table = pd.DataFrame()
 
 
-# -----------------------------
-# DISPLAY
-# -----------------------------
-team_leader = df_table.iloc[0]
-
-st.success(f"🏆 Leading Team: {team_leader['Team']} — {team_leader['Points']} pts")
-
-col1, col2 = st.columns([2, 1])
-
-# -----------------------------
-# LEFT: CHART
-# -----------------------------
-with col1:
-    st.subheader("📊 Team Scores")
-
-    fig, ax = plt.subplots(figsize=(6, 3.5))
-
-    colors = []
-    for team in df_chart["Team"]:
-        if team == team_leader["Team"]:
-            colors.append("#FFD700")
-        else:
-            colors.append(TEAM_COLORS.get(team, "#cccccc"))
-
-    bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.5)
-
-    ax.set_xlabel("")
-    ax.set_ylabel("")
-    ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
-    ax.tick_params(left=False, bottom=False)
-
-    max_val = df_chart["Points"].max()
-
-    for bar in bars:
-        width = bar.get_width()
-        ax.text(
-            width + max_val * 0.01,
-            bar.get_y() + bar.get_height() / 2,
-            f"{int(width)}",
-            va='center',
-            fontsize=10
-        )
-
-    plt.tight_layout()
-    st.pyplot(fig)
+# Helper function to highlight the top 2 elements
+def highlight_winners(row):
+    # row.name holds the dataframe index integer
+    if row.name in [1, 2]:
+        return ['background-color: #fff3cd; font-weight: bold; border: 1px solid #ffeeba;'] * len(row)
+    return [''] * len(row)
 
 
 # -----------------------------
-# RIGHT: STACKED TABLES
+# DISPLAY: 1. BEST PLAYERS (FIRST)
 # -----------------------------
-with col2:
-    st.subheader("📋 Team Ranking")
-    st.dataframe(df_table, use_container_width=True, height=200)
+st.subheader("🥇 Best Player per Team")
+styled_leaders = leaders_table.style.apply(highlight_winners, axis=1)
+st.dataframe(styled_leaders, use_container_width=True, height=180)
 
-    st.markdown("---")
-
-    st.subheader("🥇 Best Player")
-    st.dataframe(leaders_table, use_container_width=True, height=200)
-
+st.markdown("---")
 
 # -----------------------------
-# BOTTOM: ALL PLAYERS RANKING (FULL HEIGHT)
+# DISPLAY: 2. SMALLER CHART
+# -----------------------------
+st.subheader("📊 Team Scores")
+
+# Determine overall leader for coloring rules
+top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
+
+# Scaled down sizes for a significantly more compact graph image footprint
+fig, ax = plt.subplots(figsize=(5, 2.2))
+
+colors = []
+for team in df_chart["Team"]:
+    if team == top_team:
+        colors.append("#FFD700")  # Gold for winner
+    else:
+        colors.append(TEAM_COLORS.get(team, "#cccccc"))
+
+bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
+
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
+ax.tick_params(left=False, bottom=False, labelsize=9)
+
+max_val = df_chart["Points"].max()
+
+for bar in bars:
+    width = bar.get_width()
+    ax.text(
+        width + max_val * 0.01,
+        bar.get_y() + bar.get_height() / 2,
+        f"{int(width)}",
+        va='center',
+        fontsize=9,
+        weight='bold'
+    )
+
+plt.tight_layout()
+# Control display width on screen using streamlits' width configuration parameters
+st.pyplot(fig, use_container_width=False)
+
+
+# -----------------------------
+# DISPLAY: 3. ALL PLAYERS RANKING
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
 if not all_players_table.empty:
-    # st.table automatically expands vertically to show all rows 
-    # without any internal scrollbars.
     st.table(all_players_table)
 else:
     st.warning("No player data could be retrieved.")
