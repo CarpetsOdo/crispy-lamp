@@ -129,25 +129,15 @@ else:
     all_players_table = pd.DataFrame()
 
 
-# Helper function to inject progressively larger font sizes for rows 1 and 2
-def apply_progressive_fonts(row):
-    if row.name == 1:
-        return ['font-size: 18px; font-weight: bold;'] * len(row)
-    elif row.name == 2:
-        return ['font-size: 15px; font-weight: bold;'] * len(row)
-    return [''] * len(row)
-
-
 # -----------------------------
 # SIDE-BY-SIDE DISPLAY
 # -----------------------------
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: BEST PLAYERS WITH SCALED TEXT SIZES
+# LEFT SIDE: BEST PLAYERS
 with col1:
     st.subheader("🥇 Best Player per Team")
-    styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
-    st.dataframe(styled_leaders, use_container_width=True, height=180)
+    st.dataframe(leaders_table, use_container_width=True, height=180)
 
 # RIGHT SIDE: COMPACT CHART
 with col2:
