@@ -111,22 +111,41 @@ if len(df) == 0:
 # Sort DataFrames
 df_chart = df.sort_values(by="Points", ascending=True)
 
-# Process Leaderboards
+# Process Group Leaderboards
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
-# Add 1st and 2nd place emojis to Leader names dynamically based on sorted rank
+# Add 1st and 2nd place emojis to Group Leader names dynamically based on sorted rank
 for idx in leaders_table.index:
     if idx == 1:
         leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
     elif idx == 2:
         leaders_table.at[idx, "Leader"] = f"🥈 {leaders_table.at[idx, 'Leader']}"
 
+# Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
     all_players_table.index += 1
+    
+    # Extract the top 3 overall players
+    top_3_overall = all_players_table.head(3).copy()
+    
+    # Prepend podium emojis to their names
+    podium_emojis = {1: "🥇 ", 2: "🥈 ", 3: "🥉 "}
+    for idx in top_3_overall.index:
+        top_3_overall.at[idx, "Player"] = f"{podium_emojis[idx]}{top_3_overall.at[idx, 'Player']}"
 else:
     all_players_table = pd.DataFrame()
+    top_3_overall = pd.DataFrame()
+
+
+# Helper function to inject progressively larger font sizes for podium rows 1 and 2
+def apply_progressive_fonts(row):
+    if row.name == 1:
+        return ['font-size: 18px; font-weight: bold;'] * len(row)
+    elif row.name == 2:
+        return ['font-size: 15px; font-weight: bold;'] * len(row)
+    return [''] * len(row)
 
 
 # -----------------------------
@@ -134,10 +153,20 @@ else:
 # -----------------------------
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: BEST PLAYERS
+# LEFT SIDE: STACKED TABLES (TOP 3 OVERALL + BEST PLAYER PER TEAM)
 with col1:
+    st.subheader("🏆 Top 3 Overall Players")
+    if not top_3_overall.empty:
+        styled_top3 = top_3_overall.style.apply(apply_progressive_fonts, axis=1)
+        st.dataframe(styled_top3, use_container_width=True, height=180)
+    else:
+        st.warning("No overall data available.")
+        
+    st.markdown("---")
+    
     st.subheader("🥇 Best Player per Team")
-    st.dataframe(leaders_table, use_container_width=True, height=180)
+    styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
+    st.dataframe(styled_leaders, use_container_width=True, height=180)
 
 # RIGHT SIDE: COMPACT CHART
 with col2:
@@ -145,7 +174,7 @@ with col2:
 
     top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
 
-    fig, ax = plt.subplots(figsize=(5, 2.2))
+    fig, ax = plt.subplots(figsize=(5, 3.2))  # Bumped up height slightly to match stacked layout
 
     colors = []
     for team in df_chart["Team"]:
