@@ -115,6 +115,13 @@ df_chart = df.sort_values(by="Points", ascending=True)
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
+# Add 1st and 2nd place emojis to Group Leader names dynamically based on sorted rank
+for idx in leaders_table.index:
+    if idx == 1:
+        leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
+    elif idx == 2:
+        leaders_table.at[idx, "Leader"] = f"🥈 {leaders_table.at[idx, 'Leader']}"
+
 # Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
@@ -122,16 +129,48 @@ if not all_players_df.empty:
     
     # Extract the top 3 overall players
     top_3_overall = all_players_table.head(3).copy()
-    
-    # Prepend podium emojis to their names
-    podium_emojis = {1: "🥇 ", 2: "🥈 ", 3: "🥉 "}
-    for idx in top_3_overall.index:
-        top_3_overall.at[idx, "Player"] = f"{podium_emojis[idx]}{top_3_overall.at[idx, 'Player']}"
 else:
     all_players_table = pd.DataFrame()
     top_3_overall = pd.DataFrame()
 
+# -----------------------------
+# DYNAMIC PODIUM GENERATION
+# -----------------------------
+if not top_3_overall.empty and len(top_3_overall) == 3:
+    st.subheader("🏆 Overall Top 3 Podium")
+    # Reference the static podium graphic for visual style inspiration
+    st.image("image_0.png", caption="Overall Podium Style Reference (Static)", use_container_width=True)
+    
+    # Define player details for podium places
+    # We will assume a fixed visual composition inspired by the image,
+    # but the text fields (Name, Points) will be dynamic.
+    
+    # Place 1 (Center)
+    p1_name = top_3_overall.iloc[0]["Player"]
+    p1_pts = str(top_3_overall.iloc[0]["Points"])
+    
+    # Place 2 (Right)
+    p2_name = top_3_overall.iloc[1]["Player"]
+    p2_pts = str(top_3_overall.iloc[1]["Points"])
+    
+    # Place 3 (Left)
+    p3_name = top_3_overall.iloc[2]["Player"]
+    p3_pts = str(top_3_overall.iloc[2]["Points"])
+    
+    # Textual placeholder while the dynamic image gen capability is not implemented.
+    st.info(f"Dynamic Podium placeholders: \n\n"
+             f"**1st (Center):** {p1_name} ({p1_pts} pts) - Blue Kit\n\n"
+             f"**2nd (Right):** {p2_name} ({p2_pts} pts) - Red Kit\n\n"
+             f"**3rd (Left):** {p3_name} ({p3_pts} pts) - Green Kit\n\n"
+             f"*Note: A full graphic generation with these names would replace this.*")
+else:
+    st.warning("Insufficient player data for dynamic podium.")
+    st.image("image_0.png", caption="Static Podium (Incomplete Data)", use_container_width=True)
 
+
+# -----------------------------
+# STYLING FUNCTION
+# -----------------------------
 # Helper function to inject progressively larger font sizes for podium rows 1 and 2
 def apply_progressive_fonts(row):
     if row.name == 1:
@@ -146,17 +185,8 @@ def apply_progressive_fonts(row):
 # -----------------------------
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: STACKED TABLES (TOP 3 OVERALL + BEST PLAYER PER TEAM)
+# LEFT SIDE: STACKED TABLES (BEST PLAYER PER TEAM)
 with col1:
-    st.subheader("🏆 Top 3 Overall Players")
-    if not top_3_overall.empty:
-        styled_top3 = top_3_overall.style.apply(apply_progressive_fonts, axis=1)
-        st.dataframe(styled_top3, use_container_width=True, height=180)
-    else:
-        st.warning("No overall data available.")
-        
-    st.markdown("---")
-    
     st.subheader("🥇 Best Player per Team")
     styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
     st.dataframe(styled_leaders, use_container_width=True, height=180)
