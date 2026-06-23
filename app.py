@@ -154,29 +154,33 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     ax_pod.set_ylim(0, 2.3)
     ax_pod.axis('off')
     
-    # 1st Place (Center - X=2) using r"$\bigstar$" raw string
+    # 1st Place (Center - X=2)
     ax_pod.text(2, 1.45, r"$\bigstar$", fontsize=16, color="#D4AF37", ha='center')
     ax_pod.text(2, 1.62, p1['Player'].upper(), fontsize=13, weight='black', color='#111111', ha='center')
     ax_pod.text(2, 1.80, f"{p1['Points']} pts", fontsize=10, weight='bold', color='#444444', ha='center')
-    ax_pod.text(2, 1.95, f"({p1['Team']})", fontsize=8, color='#666666', style='italic', ha='center')
-    ax_pod.text(2, 0.70, "1st", fontsize=16, color='#222222', weight='bold', ha='center')
+    ax_pod.text(2, 0.75, "1st", fontsize=16, color='#222222', weight='bold', ha='center')
+    # Team Name centered inside the 1st place block (Y around 0.3)
+    ax_pod.text(2, 0.25, f"{p1['Team']}", fontsize=8.5, color='#ffffff', weight='bold', style='italic', ha='center')
 
-    # 2nd Place (Right - X=3) using r"$\bigstar$" raw string
+    # 2nd Place (Right - X=3)
     ax_pod.text(3, 1.15, r"$\bigstar$", fontsize=13, color="#999999", ha='center')
     ax_pod.text(3, 1.32, p2['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
     ax_pod.text(3, 1.50, f"{p2['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
-    ax_pod.text(3, 1.65, f"({p2['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
-    ax_pod.text(3, 0.55, "2nd", fontsize=14, color='#222222', weight='bold', ha='center')
+    ax_pod.text(3, 0.60, "2nd", fontsize=14, color='#222222', weight='bold', ha='center')
+    # Team Name centered inside the 2nd place block (Y around 0.2)
+    ax_pod.text(3, 0.20, f"{p2['Team']}", fontsize=8, color='#ffffff', weight='bold', style='italic', ha='center')
 
-    # 3rd Place (Left - X=1) using r"$\bigstar$" raw string
+    # 3rd Place (Left - X=1)
     ax_pod.text(1, 0.85, r"$\bigstar$", fontsize=13, color="#a05a2c", ha='center')
     ax_pod.text(1, 1.02, p3['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
     ax_pod.text(1, 1.20, f"{p3['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
-    ax_pod.text(1, 1.35, f"({p3['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
-    ax_pod.text(1, 0.40, "3rd", fontsize=14, color='#222222', weight='bold', ha='center')
+    ax_pod.text(1, 0.45, "3rd", fontsize=14, color='#222222', weight='bold', ha='center')
+    # Team Name centered inside the 3rd place block (Y around 0.15)
+    ax_pod.text(1, 0.15, f"{p3['Team']}", fontsize=8, color='#ffffff', weight='bold', style='italic', ha='center')
 
     plt.tight_layout()
-    st.pyplot(fig_pod, use_container_width=True)
+    # High DPI (300) removes all blurriness
+    st.pyplot(fig_pod, use_container_width=True, dpi=300)
     plt.close(fig_pod)
 
 
@@ -237,7 +241,7 @@ with col2:
         )
 
     plt.tight_layout()
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, use_container_width=True, dpi=300)
     plt.close(fig)
 
 
