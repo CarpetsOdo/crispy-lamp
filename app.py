@@ -111,16 +111,9 @@ if len(df) == 0:
 # Sort DataFrames
 df_chart = df.sort_values(by="Points", ascending=True)
 
-# Process Group Leaderboards
+# Process Group Leaderboards (Cleaned: No emojis added here anymore)
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
-
-# Add 1st and 2nd place emojis to Group Leader names
-for idx in leaders_table.index:
-    if idx == 1:
-        leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
-    elif idx == 2:
-        leaders_table.at[idx, "Leader"] = f"🥈 {leaders_table.at[idx, 'Leader']}"
 
 # Process Global Rankings
 if not all_players_df.empty:
@@ -147,39 +140,30 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     
     # 2nd Place (Left Column)
     with pod_col1:
-        st.write("")  # Create vertical space to stagger the top
+        st.write("")  
         st.write("")
         st.markdown(f"### **{p2['Player'].upper()}**")
         with st.container(border=True):
-            st.metric(label="2nd Place", value=f"{p2['Points']} pts")
+            st.metric(label="🥈 2nd Place", value=f"{p2['Points']} pts")
             st.caption(f"_{p2['Team']}_")
             
     # 1st Place (Center Column)
     with pod_col2:
         st.markdown(f"## 👑 **{p1['Player'].upper()}**")
         with st.container(border=True):
-            st.metric(label="1st Place", value=f"{p1['Points']} pts")
+            st.metric(label="🥇 1st Place", value=f"{p1['Points']} pts")
             st.caption(f"**_{p1['Team']}_**")
             
     # 3rd Place (Right Column)
     with pod_col3:
-        st.write("")  # Stagger down lower than 2nd
+        st.write("")  
         st.write("")
         st.write("")
         st.write("")
         st.markdown(f"#### **{p3['Player'].upper()}**")
         with st.container(border=True):
-            st.metric(label="3rd Place", value=f"{p3['Points']} pts")
+            st.metric(label="🥉 3rd Place", value=f"{p3['Points']} pts")
             st.caption(f"_{p3['Team']}_")
-
-
-# Helper function to inject progressively larger font sizes for ranking tables
-def apply_progressive_fonts(row):
-    if row.name == 1:
-        return ['font-size: 18px; font-weight: bold;'] * len(row)
-    elif row.name == 2:
-        return ['font-size: 15px; font-weight: bold;'] * len(row)
-    return [''] * len(row)
 
 
 # -----------------------------
@@ -188,11 +172,10 @@ def apply_progressive_fonts(row):
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: BEST PLAYER PER TEAM
+# LEFT SIDE: BEST PLAYER PER TEAM (Clean table design)
 with col1:
-    st.subheader("🥇 Best Player per Team")
-    styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
-    st.dataframe(styled_leaders, use_container_width=True, height=180)
+    st.subheader("🏆 Best Player per Team")
+    st.dataframe(leaders_table, use_container_width=True, height=180)
 
 # RIGHT SIDE: COMPACT CHART
 with col2:
