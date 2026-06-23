@@ -26,17 +26,13 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 # -----------------------------
 # SCRAPER
 # -----------------------------
-def get_group_data(url):
+def get_group_data(url, team_name):
+    players = []
     try:
         r = requests.get(url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(r.text, "html.parser")
 
         rows = soup.select("table tr")
-
-        total = 0
-        leader_name = "N/A"
-        leader_points = 0
-        first_row_found = False
 
         for row in rows:
             cols = row.find_all("td")
@@ -50,20 +46,17 @@ def get_group_data(url):
                     pts_str = cols[-1].text.strip().replace(".", "").replace(",", "")
                     pts = int(pts_str)
 
-                    total += pts
-
-                    if not first_row_found:
-                        leader_name = name
-                        leader_points = pts
-                        first_row_found = True
-
+                    players.append({
+                        "Team": team_name,
+                        "Player": name,
+                        "Points": pts
+                    })
                 except Exception as e:
                     pass
 
-        return total, leader_name, leader_points
-
+        return players
     except:
-        return 0, "Error", 0
+        return []
 
 
 # -----------------------------
@@ -80,38 +73,58 @@ if st.button("🔄 Refresh"):
 # -----------------------------
 # GET DATA
 # -----------------------------
+all_players_list = []
 team_results = []
 leader_results = []
 
 for team, url in GROUPS.items():
-    total, leader_name, leader_points = get_group_data(url)
-
-    team_results.append({
-        "Team": team,
-        "Points": total
-    })
-
-    leader_results.append({
-        "Team": team,
-        "Leader": leader_name,
-        "Points": leader_points
-    })
+    group_players = get_group_data(url, team)
+    
+    if group_players:
+        # Accumulate all players for the bottom list
+        all_players_list.extend(group_players)
+        
+        # Calculate team totals
+        total_pts = sum(p["Points"] for p in group_players)
+        team_results.append({
+            "Team": team,
+            "Points": total_pts
+        })
+        
+        # Identify group leader (assumes the source HTML table is already sorted by Kicktipp)
+        leader = group_players[0]
+        leader_results.append({
+            "Team": team,
+            "Leader": leader["Player"],
+            "Points": leader["Points"]
+        })
+    else:
+        # Fallback if scraping fails for a specific team
+        team_results.append({"Team": team, "Points": 0})
+        leader_results.append({"Team": team, "Leader": "Error", "Points": 0})
 
 df = pd.DataFrame(team_results)
 leaders_df = pd.DataFrame(leader_results)
+all_players_df = pd.DataFrame(all_players_list)
 
 # Safety check
 if len(df) == 0:
     st.error("No data available")
     st.stop()
 
-# Sort for chart
+# Sort dataframes
 df_chart = df.sort_values(by="Points", ascending=True)
 df_table = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 df_table.index += 1
 
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
+
+if not all_players_df.empty:
+    all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+    all_players_table.index += 1
+else:
+    all_players_table = pd.DataFrame()
 
 
 # -----------------------------
@@ -165,7 +178,6 @@ with col1:
 # RIGHT: STACKED TABLES
 # -----------------------------
 with col2:
-
     st.subheader("📋 Team Ranking")
     st.dataframe(df_table, use_container_width=True, height=200)
 
@@ -173,6 +185,17 @@ with col2:
 
     st.subheader("🥇 Best Player")
     st.dataframe(leaders_table, use_container_width=True, height=200)
+
+
+# -----------------------------
+# BOTTOM: ALL PLAYERS RANKING
+# -----------------------------
+st.markdown("---")
+st.subheader("👥 All Players Ranking")
+if not all_players_table.empty:
+    st.dataframe(all_players_table, use_container_width=True, height=400)
+else:
+    st.warning("No player data could be retrieved.")
 
 
 # -----------------------------
