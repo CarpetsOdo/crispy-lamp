@@ -42,6 +42,10 @@ def get_group_data(url, team_name):
                 try:
                     name = cols[1].text.strip()
                     
+                    # Skip players named "admin" (case-insensitive)
+                    if name.lower() == "admin":
+                        continue
+                        
                     # cols[-1] dynamically grabs the very last column ("T") on the right
                     pts_str = cols[-1].text.strip().replace(".", "").replace(",", "")
                     pts = int(pts_str)
