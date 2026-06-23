@@ -113,7 +113,6 @@ df_chart = df.sort_values(by="Points", ascending=True)
 
 # Process Group Leaderboards
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-leaders_table.index += 1
 
 # Process Global Rankings
 if not all_players_df.empty:
@@ -135,17 +134,16 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    # Reordered columns layout to: 1st, 2nd, 3rd (so it stacks correctly on mobile viewports)
     pod_col1, pod_col2, pod_col3 = st.columns([1, 1, 1])
     
-    # 1st Place (Appears First / Top on mobile)
+    # 1st Place
     with pod_col1:
         st.markdown(f"## 👑 **{p1['Player'].upper()}**")
         with st.container(border=True):
             st.metric(label="🥇 1st Place", value=f"{p1['Points']} pts")
             st.caption(f"**_{p1['Team']}_**")
             
-    # 2nd Place (Appears Second / Middle on mobile)
+    # 2nd Place
     with pod_col2:
         st.write("")  
         st.write("")
@@ -154,7 +152,7 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
             st.metric(label="🥈 2nd Place", value=f"{p2['Points']} pts")
             st.caption(f"_{p2['Team']}_")
             
-    # 3rd Place (Appears Third / Bottom on mobile)
+    # 3rd Place
     with pod_col3:
         st.write("")  
         st.write("")
@@ -167,54 +165,54 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
 
 
 # -----------------------------
-# SIDE-BY-SIDE DISPLAY
+# VERTICAL MOBILE STACK
 # -----------------------------
 st.markdown("---")
-col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: BEST PLAYER PER TEAM
-with col1:
-    st.subheader("🏆 Best Player per Team")
-    st.dataframe(leaders_table, use_container_width=True, height=180)
+# SECTION A: BEST PLAYER PER TEAM (No index numbers)
+st.subheader("🏆 Best Player per Team")
+# Using data_editor with hide_index=True completely drops the numbers on the left
+st.data_editor(leaders_table, use_container_width=True, hide_index=True, disabled=True)
 
-# RIGHT SIDE: COMPACT CHART
-with col2:
-    st.subheader("📊 Team Scores")
+st.markdown("---")
 
-    top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
+# SECTION B: TEAM SCORES GRAPH
+st.subheader("📊 Team Scores")
 
-    fig, ax = plt.subplots(figsize=(5, 2.5))
+top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
 
-    colors = []
-    for team in df_chart["Team"]:
-        if team == top_team:
-            colors.append("#FFD700")
-        else:
-            colors.append(TEAM_COLORS.get(team, "#cccccc"))
+fig, ax = plt.subplots(figsize=(6, 3)) # Slightly wider aspect ratio for vertical blocks
 
-    bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
+colors = []
+for team in df_chart["Team"]:
+    if team == top_team:
+        colors.append("#FFD700")
+    else:
+        colors.append(TEAM_COLORS.get(team, "#cccccc"))
 
-    ax.set_xlabel("")
-    ax.set_ylabel("")
-    ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
-    ax.tick_params(left=False, bottom=False, labelsize=9)
+bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
 
-    max_val = df_chart["Points"].max()
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
+ax.tick_params(left=False, bottom=False, labelsize=10)
 
-    for bar in bars:
-        width = bar.get_width()
-        ax.text(
-            width + max_val * 0.01,
-            bar.get_y() + bar.get_height() / 2,
-            f"{int(width)}",
-            va='center',
-            fontsize=9,
-            weight='bold'
-        )
+max_val = df_chart["Points"].max()
 
-    plt.tight_layout()
-    st.pyplot(fig, use_container_width=True, dpi=300)
-    plt.close(fig)
+for bar in bars:
+    width = bar.get_width()
+    ax.text(
+        width + max_val * 0.01,
+        bar.get_y() + bar.get_height() / 2,
+        f"{int(width)}",
+        va='center',
+        fontsize=10,
+        weight='bold'
+    )
+
+plt.tight_layout()
+st.pyplot(fig, use_container_width=True, dpi=300)
+plt.close(fig)
 
 
 # -----------------------------
