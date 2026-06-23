@@ -133,54 +133,44 @@ else:
 
 
 # -----------------------------
-# DISPLAY: 1. CRISP NATIVE PODIUM
+# NATIVE VECTOR PODIUM (NO BLUR)
 # -----------------------------
 if not top_3_overall.empty and len(top_3_overall) == 3:
-    st.subheader("🏆 Overall Top 3 Podium")
+    st.subheader("🏆 Top 3 Podium")
     
     p1 = top_3_overall.iloc[0]
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    podium_html = f"""
-    <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 700px; margin: 30px auto; font-family: sans-serif; text-align: center;">
-        
-        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
-            <div style="font-size: 16px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 20px; line-height: 1.2;">
-                {p3['Player']}
-            </div>
-            <div style="background-color: #cd7f32; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 25px 10px; height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div style="font-size: 20px; font-weight: bold; color: #222;">3rd</div>
-                <div style="font-size: 15px; font-weight: bold; color: #333;">{p3['Points']} pts</div>
-                <div style="font-size: 11px; font-weight: bold; font-style: italic; color: #ffffff;">{p3['Team']}</div>
-            </div>
-        </div>
-
-        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
-            <div style="font-size: 20px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 24px; line-height: 1.2;">
-                {p1['Player']}
-            </div>
-            <div style="background-color: #FFD700; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 35px 10px; height: 180px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div style="font-size: 26px; font-weight: bold; color: #222;">1st</div>
-                <div style="font-size: 17px; font-weight: bold; color: #333;">{p1['Points']} pts</div>
-                <div style="font-size: 12px; font-weight: bold; font-style: italic; color: #ffffff;">{p1['Team']}</div>
-            </div>
-        </div>
-
-        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
-            <div style="font-size: 16px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 20px; line-height: 1.2;">
-                {p2['Player']}
-            </div>
-            <div style="background-color: #c0c0c0; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 30px 10px; height: 145px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div style="font-size: 22px; font-weight: bold; color: #222;">2nd</div>
-                <div style="font-size: 16px; font-weight: bold; color: #333;">{p2['Points']} pts</div>
-                <div style="font-size: 11px; font-weight: bold; font-style: italic; color: #ffffff;">{p2['Team']}</div>
-            </div>
-        </div>
-
-    </div>
-    """
-    st.markdown(podium_html, unsafe_allow_html=True)
+    # Create 3 columns matching podium structure: 2nd, 1st, 3rd
+    pod_col1, pod_col2, pod_col3 = st.columns([1, 1, 1])
+    
+    # 2nd Place (Left Column)
+    with pod_col1:
+        st.write("")  # Create vertical space to stagger the top
+        st.write("")
+        st.markdown(f"### **{p2['Player'].upper()}**")
+        with st.container(border=True):
+            st.metric(label="2nd Place", value=f"{p2['Points']} pts")
+            st.caption(f"_{p2['Team']}_")
+            
+    # 1st Place (Center Column)
+    with pod_col2:
+        st.markdown(f"## 👑 **{p1['Player'].upper()}**")
+        with st.container(border=True):
+            st.metric(label="1st Place", value=f"{p1['Points']} pts")
+            st.caption(f"**_{p1['Team']}_**")
+            
+    # 3rd Place (Right Column)
+    with pod_col3:
+        st.write("")  # Stagger down lower than 2nd
+        st.write("")
+        st.write("")
+        st.write("")
+        st.markdown(f"#### **{p3['Player'].upper()}**")
+        with st.container(border=True):
+            st.metric(label="3rd Place", value=f"{p3['Points']} pts")
+            st.caption(f"_{p3['Team']}_")
 
 
 # Helper function to inject progressively larger font sizes for ranking tables
@@ -193,7 +183,7 @@ def apply_progressive_fonts(row):
 
 
 # -----------------------------
-# DISPLAY: 2. SIDE-BY-SIDE TABLES & GRAPH
+# SIDE-BY-SIDE DISPLAY
 # -----------------------------
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
@@ -204,7 +194,7 @@ with col1:
     styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
     st.dataframe(styled_leaders, use_container_width=True, height=180)
 
-# RIGHT SIDE: COMPACT TEAM SCORES GRAPH
+# RIGHT SIDE: COMPACT CHART
 with col2:
     st.subheader("📊 Team Scores")
 
@@ -245,7 +235,7 @@ with col2:
 
 
 # -----------------------------
-# DISPLAY: 3. ALL PLAYERS RANKING
+# DISPLAY: ALL PLAYERS RANKING
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
@@ -267,5 +257,3 @@ st.markdown(
     '<meta http-equiv="refresh" content="60">',
     unsafe_allow_html=True
 )
-
-# Force clear container cache trigger update 2026
