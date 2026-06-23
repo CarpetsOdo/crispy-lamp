@@ -115,7 +115,7 @@ df_chart = df.sort_values(by="Points", ascending=True)
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
-# Add 1st and 2nd place emojis to Group Leader names dynamically based on sorted rank
+# Add 1st and 2nd place emojis to Group Leader names
 for idx in leaders_table.index:
     if idx == 1:
         leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
@@ -126,52 +126,65 @@ for idx in leaders_table.index:
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
     all_players_table.index += 1
-    
-    # Extract the top 3 overall players
     top_3_overall = all_players_table.head(3).copy()
 else:
     all_players_table = pd.DataFrame()
     top_3_overall = pd.DataFrame()
 
+
 # -----------------------------
-# DYNAMIC PODIUM GENERATION
+# DYNAMIC PODIUM GENERATOR
 # -----------------------------
 if not top_3_overall.empty and len(top_3_overall) == 3:
     st.subheader("🏆 Overall Top 3 Podium")
-    # Reference the static podium graphic for visual style inspiration
-    st.image("image_0.png", caption="Overall Podium Style Reference (Static)", use_container_width=True)
     
-    # Define player details for podium places
-    # We will assume a fixed visual composition inspired by the image,
-    # but the text fields (Name, Points) will be dynamic.
+    # Extract dynamic values
+    p1 = top_3_overall.iloc[0]
+    p2 = top_3_overall.iloc[1]
+    p3 = top_3_overall.iloc[2]
     
-    # Place 1 (Center)
-    p1_name = top_3_overall.iloc[0]["Player"]
-    p1_pts = str(top_3_overall.iloc[0]["Points"])
+    # Build Matplotlib Podium Graphic
+    fig_pod, ax_pod = plt.subplots(figsize=(8, 3.5))
     
-    # Place 2 (Right)
-    p2_name = top_3_overall.iloc[1]["Player"]
-    p2_pts = str(top_3_overall.iloc[1]["Points"])
+    # Draw bars for the podium steps: 3rd (left), 1st (center), 2nd (right)
+    # Positions: Left=1, Center=2, Right=3
+    heights = [1.2, 2.0, 1.5]  # Visual steps
+    podium_colors = ["#cd7f32", "#FFD700", "#c0c0c0"]  # Bronze, Gold, Silver
     
-    # Place 3 (Left)
-    p3_name = top_3_overall.iloc[2]["Player"]
-    p3_pts = str(top_3_overall.iloc[2]["Points"])
+    bars = ax_pod.bar([1, 2, 3], heights, color=podium_colors, width=0.8, edgecolor='black', linewidth=1.5)
     
-    # Textual placeholder while the dynamic image gen capability is not implemented.
-    st.info(f"Dynamic Podium placeholders: \n\n"
-             f"**1st (Center):** {p1_name} ({p1_pts} pts) - Blue Kit\n\n"
-             f"**2nd (Right):** {p2_name} ({p2_pts} pts) - Red Kit\n\n"
-             f"**3rd (Left):** {p3_name} ({p3_pts} pts) - Green Kit\n\n"
-             f"*Note: A full graphic generation with these names would replace this.*")
-else:
-    st.warning("Insufficient player data for dynamic podium.")
-    st.image("image_0.png", caption="Static Podium (Incomplete Data)", use_container_width=True)
+    # Format axes out of existence
+    ax_pod.set_xlim(0.4, 3.6)
+    ax_pod.set_ylim(0, 2.7)
+    ax_pod.axis('off')
+    
+    # 1st Place Annotations (Center, X=2)
+    ax_pod.text(2, 2.15, "🥇", fontsize=24, ha='center')
+    ax_pod.text(2, 2.02, p1['Player'], fontsize=12, weight='bold', ha='center', wrap=True)
+    ax_pod.text(2, 1.0, "1st\nOverall", fontsize=14, color='black', weight='bold', ha='center')
+    ax_pod.text(2, 0.4, f"{p1['Points']} pts", fontsize=11, color='black', weight='bold', ha='center')
+    ax_pod.text(2, 0.15, f"({p1['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+
+    # 2nd Place Annotations (Right, X=3)
+    ax_pod.text(3, 1.65, "🥈", fontsize=20, ha='center')
+    ax_pod.text(3, 1.52, p2['Player'], fontsize=11, weight='bold', ha='center', wrap=True)
+    ax_pod.text(3, 0.75, "2nd\nOverall", fontsize=12, color='black', weight='bold', ha='center')
+    ax_pod.text(3, 0.3, f"{p2['Points']} pts", fontsize=10, color='black', weight='bold', ha='center')
+    ax_pod.text(3, 0.1, f"({p2['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+
+    # 3rd Place Annotations (Left, X=1)
+    ax_pod.text(1, 1.35, "🥉", fontsize=20, ha='center')
+    ax_pod.text(1, 1.22, p3['Player'], fontsize=11, weight='bold', ha='center', wrap=True)
+    ax_pod.text(1, 0.6, "3rd\nOverall", fontsize=12, color='black', weight='bold', ha='center')
+    ax_pod.text(1, 0.25, f"{p3['Points']} pts", fontsize=10, color='black', weight='bold', ha='center')
+    ax_pod.text(1, 0.08, f"({p3['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+
+    plt.tight_layout()
+    st.pyplot(fig_pod, use_container_width=True)
+    plt.close(fig_pod)
 
 
-# -----------------------------
-# STYLING FUNCTION
-# -----------------------------
-# Helper function to inject progressively larger font sizes for podium rows 1 and 2
+# Helper function to inject progressively larger font sizes for rows 1 and 2
 def apply_progressive_fonts(row):
     if row.name == 1:
         return ['font-size: 18px; font-weight: bold;'] * len(row)
@@ -183,9 +196,10 @@ def apply_progressive_fonts(row):
 # -----------------------------
 # SIDE-BY-SIDE DISPLAY
 # -----------------------------
+st.markdown("---")
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: STACKED TABLES (BEST PLAYER PER TEAM)
+# LEFT SIDE: BEST PLAYER PER TEAM
 with col1:
     st.subheader("🥇 Best Player per Team")
     styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
@@ -197,12 +211,12 @@ with col2:
 
     top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
 
-    fig, ax = plt.subplots(figsize=(5, 3.2))  # Bumped up height slightly to match stacked layout
+    fig, ax = plt.subplots(figsize=(5, 2.5))
 
     colors = []
     for team in df_chart["Team"]:
         if team == top_team:
-            colors.append("#FFD700")  # Gold for winner
+            colors.append("#FFD700")
         else:
             colors.append(TEAM_COLORS.get(team, "#cccccc"))
 
@@ -228,6 +242,7 @@ with col2:
 
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
+    plt.close(fig)
 
 
 # -----------------------------
