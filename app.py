@@ -142,37 +142,34 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    # Created a more compact aspect ratio (figsize 8x2.5) to keep it smaller on screen
     fig_pod, ax_pod = plt.subplots(figsize=(8, 2.5))
     
-    # X positions for 3rd (left), 1st (center), 2nd (right)
     x_positions = [1, 2, 3]
-    heights = [0.8, 1.4, 1.1]  # Lower bar heights to clear room above them
-    podium_colors = ["#cd7f32", "#FFD700", "#c0c0c0"]  # Bronze, Gold, Silver
+    heights = [0.8, 1.4, 1.1]
+    podium_colors = ["#cd7f32", "#FFD700", "#c0c0c0"]
     
     bars = ax_pod.bar(x_positions, heights, color=podium_colors, width=0.7, edgecolor='#222222', linewidth=1.2)
     
-    # Setup viewing windows nicely above blocks
     ax_pod.set_xlim(0.4, 3.6)
     ax_pod.set_ylim(0, 2.3)
     ax_pod.axis('off')
     
-    # 1st Place (Center - X=2)
-    ax_pod.text(2, 1.45, "$\bigstar$", fontsize=16, color="#D4AF37", ha='center')
+    # 1st Place (Center - X=2) using r"$\bigstar$" raw string
+    ax_pod.text(2, 1.45, r"$\bigstar$", fontsize=16, color="#D4AF37", ha='center')
     ax_pod.text(2, 1.62, p1['Player'].upper(), fontsize=13, weight='black', color='#111111', ha='center')
     ax_pod.text(2, 1.80, f"{p1['Points']} pts", fontsize=10, weight='bold', color='#444444', ha='center')
     ax_pod.text(2, 1.95, f"({p1['Team']})", fontsize=8, color='#666666', style='italic', ha='center')
     ax_pod.text(2, 0.70, "1st", fontsize=16, color='#222222', weight='bold', ha='center')
 
-    # 2nd Place (Right - X=3)
-    ax_pod.text(3, 1.15, "$\bigstar$", fontsize=13, color="#999999", ha='center')
+    # 2nd Place (Right - X=3) using r"$\bigstar$" raw string
+    ax_pod.text(3, 1.15, r"$\bigstar$", fontsize=13, color="#999999", ha='center')
     ax_pod.text(3, 1.32, p2['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
     ax_pod.text(3, 1.50, f"{p2['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
     ax_pod.text(3, 1.65, f"({p2['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
     ax_pod.text(3, 0.55, "2nd", fontsize=14, color='#222222', weight='bold', ha='center')
 
-    # 3rd Place (Left - X=1)
-    ax_pod.text(1, 0.85, "$\bigstar$", fontsize=13, color="#a05a2c", ha='center')
+    # 3rd Place (Left - X=1) using r"$\bigstar$" raw string
+    ax_pod.text(1, 0.85, r"$\bigstar$", fontsize=13, color="#a05a2c", ha='center')
     ax_pod.text(1, 1.02, p3['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
     ax_pod.text(1, 1.20, f"{p3['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
     ax_pod.text(1, 1.35, f"({p3['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
