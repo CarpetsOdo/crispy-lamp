@@ -111,7 +111,7 @@ if len(df) == 0:
 # Sort DataFrames
 df_chart = df.sort_values(by="Points", ascending=True)
 
-# Process Group Leaderboards (Cleaned: No emojis added here anymore)
+# Process Group Leaderboards
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
@@ -126,7 +126,7 @@ else:
 
 
 # -----------------------------
-# NATIVE VECTOR PODIUM (NO BLUR)
+# MOBILE-OPTIMIZED PODIUM (1st, 2nd, 3rd)
 # -----------------------------
 if not top_3_overall.empty and len(top_3_overall) == 3:
     st.subheader("🏆 Top 3 Podium")
@@ -135,11 +135,18 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    # Create 3 columns matching podium structure: 2nd, 1st, 3rd
+    # Reordered columns layout to: 1st, 2nd, 3rd (so it stacks correctly on mobile viewports)
     pod_col1, pod_col2, pod_col3 = st.columns([1, 1, 1])
     
-    # 2nd Place (Left Column)
+    # 1st Place (Appears First / Top on mobile)
     with pod_col1:
+        st.markdown(f"## 👑 **{p1['Player'].upper()}**")
+        with st.container(border=True):
+            st.metric(label="🥇 1st Place", value=f"{p1['Points']} pts")
+            st.caption(f"**_{p1['Team']}_**")
+            
+    # 2nd Place (Appears Second / Middle on mobile)
+    with pod_col2:
         st.write("")  
         st.write("")
         st.markdown(f"### **{p2['Player'].upper()}**")
@@ -147,14 +154,7 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
             st.metric(label="🥈 2nd Place", value=f"{p2['Points']} pts")
             st.caption(f"_{p2['Team']}_")
             
-    # 1st Place (Center Column)
-    with pod_col2:
-        st.markdown(f"## 👑 **{p1['Player'].upper()}**")
-        with st.container(border=True):
-            st.metric(label="🥇 1st Place", value=f"{p1['Points']} pts")
-            st.caption(f"**_{p1['Team']}_**")
-            
-    # 3rd Place (Right Column)
+    # 3rd Place (Appears Third / Bottom on mobile)
     with pod_col3:
         st.write("")  
         st.write("")
@@ -172,7 +172,7 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
 
-# LEFT SIDE: BEST PLAYER PER TEAM (Clean table design)
+# LEFT SIDE: BEST PLAYER PER TEAM
 with col1:
     st.subheader("🏆 Best Player per Team")
     st.dataframe(leaders_table, use_container_width=True, height=180)
