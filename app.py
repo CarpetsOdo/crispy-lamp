@@ -115,13 +115,6 @@ df_chart = df.sort_values(by="Points", ascending=True)
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
-# Add 1st and 2nd place emojis to Group Leader names dynamically based on sorted rank
-for idx in leaders_table.index:
-    if idx == 1:
-        leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
-    elif idx == 2:
-        leaders_table.at[idx, "Leader"] = f"🥈 {leaders_table.at[idx, 'Leader']}"
-
 # Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
