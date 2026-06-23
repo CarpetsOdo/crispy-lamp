@@ -133,7 +133,7 @@ else:
 
 
 # -----------------------------
-# DYNAMIC PODIUM GENERATOR
+# VECTOR HTML/CSS PODIUM GENERATOR
 # -----------------------------
 if not top_3_overall.empty and len(top_3_overall) == 3:
     st.subheader("🏆 Overall Top 3 Podium")
@@ -142,46 +142,45 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    fig_pod, ax_pod = plt.subplots(figsize=(8, 2.5))
-    
-    x_positions = [1, 2, 3]
-    heights = [0.8, 1.4, 1.1]
-    podium_colors = ["#cd7f32", "#FFD700", "#c0c0c0"]
-    
-    bars = ax_pod.bar(x_positions, heights, color=podium_colors, width=0.7, edgecolor='#222222', linewidth=1.2)
-    
-    ax_pod.set_xlim(0.4, 3.6)
-    ax_pod.set_ylim(0, 2.3)
-    ax_pod.axis('off')
-    
-    # 1st Place (Center - X=2)
-    ax_pod.text(2, 1.45, r"$\bigstar$", fontsize=16, color="#D4AF37", ha='center')
-    ax_pod.text(2, 1.62, p1['Player'].upper(), fontsize=13, weight='black', color='#111111', ha='center')
-    ax_pod.text(2, 1.80, f"{p1['Points']} pts", fontsize=10, weight='bold', color='#444444', ha='center')
-    ax_pod.text(2, 0.75, "1st", fontsize=16, color='#222222', weight='bold', ha='center')
-    # Team Name centered inside the 1st place block (Y around 0.3)
-    ax_pod.text(2, 0.25, f"{p1['Team']}", fontsize=8.5, color='#ffffff', weight='bold', style='italic', ha='center')
+    podium_html = f"""
+    <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 700px; margin: 30px auto; font-family: sans-serif; text-align: center;">
+        
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
+            <div style="font-size: 16px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 20px; line-height: 1.2;">
+                {p3['Player']}
+            </div>
+            <div style="background-color: #cd7f32; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 25px 10px; height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 20px; font-weight: bold; color: #222;">3rd</div>
+                <div style="font-size: 15px; font-weight: bold; color: #333;">{p3['Points']} pts</div>
+                <div style="font-size: 11px; font-weight: bold; font-style: italic; color: #ffffff;">{p3['Team']}</div>
+            </div>
+        </div>
 
-    # 2nd Place (Right - X=3)
-    ax_pod.text(3, 1.15, r"$\bigstar$", fontsize=13, color="#999999", ha='center')
-    ax_pod.text(3, 1.32, p2['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
-    ax_pod.text(3, 1.50, f"{p2['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
-    ax_pod.text(3, 0.60, "2nd", fontsize=14, color='#222222', weight='bold', ha='center')
-    # Team Name centered inside the 2nd place block (Y around 0.2)
-    ax_pod.text(3, 0.20, f"{p2['Team']}", fontsize=8, color='#ffffff', weight='bold', style='italic', ha='center')
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
+            <div style="font-size: 20px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 24px; line-height: 1.2;">
+                {p1['Player']}
+            </div>
+            <div style="background-color: #FFD700; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 35px 10px; height: 180px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 26px; font-weight: bold; color: #222;">1st</div>
+                <div style="font-size: 17px; font-weight: bold; color: #333;">{p1['Points']} pts</div>
+                <div style="font-size: 12px; font-weight: bold; font-style: italic; color: #ffffff;">{p1['Team']}</div>
+            </div>
+        </div>
 
-    # 3rd Place (Left - X=1)
-    ax_pod.text(1, 0.85, r"$\bigstar$", fontsize=13, color="#a05a2c", ha='center')
-    ax_pod.text(1, 1.02, p3['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
-    ax_pod.text(1, 1.20, f"{p3['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
-    ax_pod.text(1, 0.45, "3rd", fontsize=14, color='#222222', weight='bold', ha='center')
-    # Team Name centered inside the 3rd place block (Y around 0.15)
-    ax_pod.text(1, 0.15, f"{p3['Team']}", fontsize=8, color='#ffffff', weight='bold', style='italic', ha='center')
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 8px;">
+            <div style="font-size: 16px; font-weight: 900; color: #111; text-transform: uppercase; margin-bottom: 12px; min-height: 20px; line-height: 1.2;">
+                {p2['Player']}
+            </div>
+            <div style="background-color: #c0c0c0; border: 1.5px solid #222; border-bottom: none; border-radius: 4px 4px 0 0; padding: 30px 10px; height: 145px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 22px; font-weight: bold; color: #222;">2nd</div>
+                <div style="font-size: 16px; font-weight: bold; color: #333;">{p2['Points']} pts</div>
+                <div style="font-size: 11px; font-weight: bold; font-style: italic; color: #ffffff;">{p2['Team']}</div>
+            </div>
+        </div>
 
-    plt.tight_layout()
-    # High DPI (300) removes all blurriness
-    st.pyplot(fig_pod, use_container_width=True, dpi=300)
-    plt.close(fig_pod)
+    </div>
+    """
+    st.markdown(podium_html, unsafe_allow_html=True)
 
 
 # Helper function to inject progressively larger font sizes for ranking tables
