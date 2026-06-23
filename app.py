@@ -138,53 +138,52 @@ else:
 if not top_3_overall.empty and len(top_3_overall) == 3:
     st.subheader("🏆 Overall Top 3 Podium")
     
-    # Extract dynamic values
     p1 = top_3_overall.iloc[0]
     p2 = top_3_overall.iloc[1]
     p3 = top_3_overall.iloc[2]
     
-    # Build Matplotlib Podium Graphic
-    fig_pod, ax_pod = plt.subplots(figsize=(8, 3.5))
+    # Created a more compact aspect ratio (figsize 8x2.5) to keep it smaller on screen
+    fig_pod, ax_pod = plt.subplots(figsize=(8, 2.5))
     
-    # Draw bars for the podium steps: 3rd (left), 1st (center), 2nd (right)
-    # Positions: Left=1, Center=2, Right=3
-    heights = [1.2, 2.0, 1.5]  # Visual steps
+    # X positions for 3rd (left), 1st (center), 2nd (right)
+    x_positions = [1, 2, 3]
+    heights = [0.8, 1.4, 1.1]  # Lower bar heights to clear room above them
     podium_colors = ["#cd7f32", "#FFD700", "#c0c0c0"]  # Bronze, Gold, Silver
     
-    bars = ax_pod.bar([1, 2, 3], heights, color=podium_colors, width=0.8, edgecolor='black', linewidth=1.5)
+    bars = ax_pod.bar(x_positions, heights, color=podium_colors, width=0.7, edgecolor='#222222', linewidth=1.2)
     
-    # Format axes out of existence
+    # Setup viewing windows nicely above blocks
     ax_pod.set_xlim(0.4, 3.6)
-    ax_pod.set_ylim(0, 2.7)
+    ax_pod.set_ylim(0, 2.3)
     ax_pod.axis('off')
     
-    # 1st Place Annotations (Center, X=2)
-    ax_pod.text(2, 2.15, "🥇", fontsize=24, ha='center')
-    ax_pod.text(2, 2.02, p1['Player'], fontsize=12, weight='bold', ha='center', wrap=True)
-    ax_pod.text(2, 1.0, "1st\nOverall", fontsize=14, color='black', weight='bold', ha='center')
-    ax_pod.text(2, 0.4, f"{p1['Points']} pts", fontsize=11, color='black', weight='bold', ha='center')
-    ax_pod.text(2, 0.15, f"({p1['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+    # 1st Place (Center - X=2)
+    ax_pod.text(2, 1.45, "$\bigstar$", fontsize=16, color="#D4AF37", ha='center')
+    ax_pod.text(2, 1.62, p1['Player'].upper(), fontsize=13, weight='black', color='#111111', ha='center')
+    ax_pod.text(2, 1.80, f"{p1['Points']} pts", fontsize=10, weight='bold', color='#444444', ha='center')
+    ax_pod.text(2, 1.95, f"({p1['Team']})", fontsize=8, color='#666666', style='italic', ha='center')
+    ax_pod.text(2, 0.70, "1st", fontsize=16, color='#222222', weight='bold', ha='center')
 
-    # 2nd Place Annotations (Right, X=3)
-    ax_pod.text(3, 1.65, "🥈", fontsize=20, ha='center')
-    ax_pod.text(3, 1.52, p2['Player'], fontsize=11, weight='bold', ha='center', wrap=True)
-    ax_pod.text(3, 0.75, "2nd\nOverall", fontsize=12, color='black', weight='bold', ha='center')
-    ax_pod.text(3, 0.3, f"{p2['Points']} pts", fontsize=10, color='black', weight='bold', ha='center')
-    ax_pod.text(3, 0.1, f"({p2['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+    # 2nd Place (Right - X=3)
+    ax_pod.text(3, 1.15, "$\bigstar$", fontsize=13, color="#999999", ha='center')
+    ax_pod.text(3, 1.32, p2['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
+    ax_pod.text(3, 1.50, f"{p2['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
+    ax_pod.text(3, 1.65, f"({p2['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
+    ax_pod.text(3, 0.55, "2nd", fontsize=14, color='#222222', weight='bold', ha='center')
 
-    # 3rd Place Annotations (Left, X=1)
-    ax_pod.text(1, 1.35, "🥉", fontsize=20, ha='center')
-    ax_pod.text(1, 1.22, p3['Player'], fontsize=11, weight='bold', ha='center', wrap=True)
-    ax_pod.text(1, 0.6, "3rd\nOverall", fontsize=12, color='black', weight='bold', ha='center')
-    ax_pod.text(1, 0.25, f"{p3['Points']} pts", fontsize=10, color='black', weight='bold', ha='center')
-    ax_pod.text(1, 0.08, f"({p3['Team']})", fontsize=8, color='#333333', style='italic', ha='center')
+    # 3rd Place (Left - X=1)
+    ax_pod.text(1, 0.85, "$\bigstar$", fontsize=13, color="#a05a2c", ha='center')
+    ax_pod.text(1, 1.02, p3['Player'].upper(), fontsize=11, weight='black', color='#111111', ha='center')
+    ax_pod.text(1, 1.20, f"{p3['Points']} pts", fontsize=9, weight='bold', color='#444444', ha='center')
+    ax_pod.text(1, 1.35, f"({p3['Team']})", fontsize=7.5, color='#666666', style='italic', ha='center')
+    ax_pod.text(1, 0.40, "3rd", fontsize=14, color='#222222', weight='bold', ha='center')
 
     plt.tight_layout()
     st.pyplot(fig_pod, use_container_width=True)
     plt.close(fig_pod)
 
 
-# Helper function to inject progressively larger font sizes for rows 1 and 2
+# Helper function to inject progressively larger font sizes for ranking tables
 def apply_progressive_fonts(row):
     if row.name == 1:
         return ['font-size: 18px; font-weight: bold;'] * len(row)
