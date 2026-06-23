@@ -267,3 +267,5 @@ st.markdown(
     '<meta http-equiv="refresh" content="60">',
     unsafe_allow_html=True
 )
+
+# Force clear container cache trigger update 2026
