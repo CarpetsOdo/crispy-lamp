@@ -133,7 +133,7 @@ else:
 
 
 # -----------------------------
-# VECTOR HTML/CSS PODIUM GENERATOR
+# DISPLAY: 1. CRISP NATIVE PODIUM
 # -----------------------------
 if not top_3_overall.empty and len(top_3_overall) == 3:
     st.subheader("🏆 Overall Top 3 Podium")
@@ -193,7 +193,7 @@ def apply_progressive_fonts(row):
 
 
 # -----------------------------
-# SIDE-BY-SIDE DISPLAY
+# DISPLAY: 2. SIDE-BY-SIDE TABLES & GRAPH
 # -----------------------------
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
@@ -204,7 +204,7 @@ with col1:
     styled_leaders = leaders_table.style.apply(apply_progressive_fonts, axis=1)
     st.dataframe(styled_leaders, use_container_width=True, height=180)
 
-# RIGHT SIDE: COMPACT CHART
+# RIGHT SIDE: COMPACT TEAM SCORES GRAPH
 with col2:
     st.subheader("📊 Team Scores")
 
@@ -245,7 +245,7 @@ with col2:
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING
+# DISPLAY: 3. ALL PLAYERS RANKING
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
