@@ -115,6 +115,13 @@ df_chart = df.sort_values(by="Points", ascending=True)
 leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
 leaders_table.index += 1
 
+# Add 1st and 2nd place emojis to Leader names dynamically based on sorted rank
+for idx in leaders_table.index:
+    if idx == 1:
+        leaders_table.at[idx, "Leader"] = f"🥇 {leaders_table.at[idx, 'Leader']}"
+    elif idx == 2:
+        leaders_table.at[idx, "Leader"] = f"🥈 {leaders_table.at[idx, 'Leader']}"
+
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
     all_players_table.index += 1
@@ -122,68 +129,57 @@ else:
     all_players_table = pd.DataFrame()
 
 
-# Helper function to highlight the top 2 elements
-def highlight_winners(row):
-    # row.name holds the dataframe index integer
-    if row.name in [1, 2]:
-        return ['background-color: #fff3cd; font-weight: bold; border: 1px solid #ffeeba;'] * len(row)
-    return [''] * len(row)
+# -----------------------------
+# SIDE-BY-SIDE DISPLAY
+# -----------------------------
+col1, col2 = st.columns([1, 1])
+
+# LEFT SIDE: BEST PLAYERS
+with col1:
+    st.subheader("🥇 Best Player per Team")
+    st.dataframe(leaders_table, use_container_width=True, height=180)
+
+# RIGHT SIDE: COMPACT CHART
+with col2:
+    st.subheader("📊 Team Scores")
+
+    top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
+
+    fig, ax = plt.subplots(figsize=(5, 2.2))
+
+    colors = []
+    for team in df_chart["Team"]:
+        if team == top_team:
+            colors.append("#FFD700")  # Gold for winner
+        else:
+            colors.append(TEAM_COLORS.get(team, "#cccccc"))
+
+    bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
+
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
+    ax.tick_params(left=False, bottom=False, labelsize=9)
+
+    max_val = df_chart["Points"].max()
+
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(
+            width + max_val * 0.01,
+            bar.get_y() + bar.get_height() / 2,
+            f"{int(width)}",
+            va='center',
+            fontsize=9,
+            weight='bold'
+        )
+
+    plt.tight_layout()
+    st.pyplot(fig, use_container_width=True)
 
 
 # -----------------------------
-# DISPLAY: 1. BEST PLAYERS (FIRST)
-# -----------------------------
-st.subheader("🥇 Best Player per Team")
-styled_leaders = leaders_table.style.apply(highlight_winners, axis=1)
-st.dataframe(styled_leaders, use_container_width=True, height=180)
-
-st.markdown("---")
-
-# -----------------------------
-# DISPLAY: 2. SMALLER CHART
-# -----------------------------
-st.subheader("📊 Team Scores")
-
-# Determine overall leader for coloring rules
-top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
-
-# Scaled down sizes for a significantly more compact graph image footprint
-fig, ax = plt.subplots(figsize=(5, 2.2))
-
-colors = []
-for team in df_chart["Team"]:
-    if team == top_team:
-        colors.append("#FFD700")  # Gold for winner
-    else:
-        colors.append(TEAM_COLORS.get(team, "#cccccc"))
-
-bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
-
-ax.set_xlabel("")
-ax.set_ylabel("")
-ax.spines[['top', 'right', 'left', 'bottom']].set_visible(False)
-ax.tick_params(left=False, bottom=False, labelsize=9)
-
-max_val = df_chart["Points"].max()
-
-for bar in bars:
-    width = bar.get_width()
-    ax.text(
-        width + max_val * 0.01,
-        bar.get_y() + bar.get_height() / 2,
-        f"{int(width)}",
-        va='center',
-        fontsize=9,
-        weight='bold'
-    )
-
-plt.tight_layout()
-# Control display width on screen using streamlits' width configuration parameters
-st.pyplot(fig, use_container_width=False)
-
-
-# -----------------------------
-# DISPLAY: 3. ALL PLAYERS RANKING
+# DISPLAY: ALL PLAYERS RANKING
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
