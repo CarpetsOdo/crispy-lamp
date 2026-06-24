@@ -169,9 +169,8 @@ if not top_3_overall.empty and len(top_3_overall) == 3:
 # -----------------------------
 st.markdown("---")
 
-# SECTION A: BEST PLAYER PER TEAM (No index numbers)
+# SECTION A: BEST PLAYER PER TEAM
 st.subheader("🏆 Best Player per Team")
-# Using data_editor with hide_index=True completely drops the numbers on the left
 st.data_editor(leaders_table, use_container_width=True, hide_index=True, disabled=True)
 
 st.markdown("---")
@@ -181,7 +180,7 @@ st.subheader("📊 Team Scores")
 
 top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
 
-fig, ax = plt.subplots(figsize=(6, 3)) # Slightly wider aspect ratio for vertical blocks
+fig, ax = plt.subplots(figsize=(6, 3))
 
 colors = []
 for team in df_chart["Team"]:
@@ -216,12 +215,30 @@ plt.close(fig)
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING
+# DISPLAY: ALL PLAYERS RANKING (WITH FILTERS)
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
+
 if not all_players_table.empty:
-    st.table(all_players_table)
+    # Extract existing team options dynamically
+    team_options = sorted(all_players_table["Team"].unique())
+    
+    # Create multi-select filters panel
+    selected_teams = st.multiselect(
+        "Filter by Team:",
+        options=team_options,
+        default=team_options,
+        placeholder="Choose one or more teams..."
+    )
+    
+    # Apply conditions to create filtered dataframe view
+    filtered_players_table = all_players_table[all_players_table["Team"].isin(selected_teams)]
+    
+    if not filtered_players_table.empty:
+        st.table(filtered_players_table)
+    else:
+        st.info("No players match the selected filter configuration.")
 else:
     st.warning("No player data could be retrieved.")
 
