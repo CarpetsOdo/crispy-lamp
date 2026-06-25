@@ -176,19 +176,22 @@ st.data_editor(leaders_table, use_container_width=True, hide_index=True, disable
 
 st.markdown("---")
 
-# SECTION B: TEAM SCORES GRAPH
+# SECTION B: TEAM SCORES GRAPH (STRICT COLORS - NO GOLD OVERRIDE)
 st.subheader("📊 Team Scores")
-
-top_team = df.sort_values(by="Points", ascending=False).iloc[0]["Team"]
 
 fig, ax = plt.subplots(figsize=(6, 3))
 
+# Your customized colors are defined strictly here
+LIVE_COLORS = {
+    "Alfacinhas FC": "#1f77b4",
+    "Os Magmáticos": "#DC3545",          # Your Vibrant Red
+    "Treinadores de Bancada": "#2ca02c"
+}
+
 colors = []
 for team in df_chart["Team"]:
-    if team == top_team:
-        colors.append("#FFD700")
-    else:
-        colors.append(TEAM_COLORS.get(team, "#cccccc"))
+    # Removed the 1st place gold check completely
+    colors.append(LIVE_COLORS.get(team, "#cccccc"))
 
 bars = ax.barh(df_chart["Team"], df_chart["Points"], color=colors, height=0.45)
 
@@ -213,7 +216,6 @@ for bar in bars:
 plt.tight_layout()
 st.pyplot(fig, use_container_width=True, dpi=300)
 plt.close(fig)
-
 
 # -----------------------------
 # DISPLAY: ALL PLAYERS RANKING (FIXED WITH NATIVE HIDE)
