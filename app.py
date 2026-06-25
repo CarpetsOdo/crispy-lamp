@@ -117,7 +117,6 @@ leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index
 # Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-    # Add an explicit Rank column so position stays intact regardless of index formatting
     all_players_table.insert(0, "Rank", all_players_table.index + 1)
     top_3_overall = all_players_table.head(3).copy()
 else:
@@ -216,7 +215,7 @@ plt.close(fig)
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING (WITH FILTERS & RANKS)
+# DISPLAY: ALL PLAYERS RANKING (WITH MAX HEIGHT BOUNDS)
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
@@ -234,9 +233,14 @@ if not all_players_table.empty:
     filtered_players_table = all_players_table[all_players_table["Team"].isin(selected_teams)]
     
     if not filtered_players_table.empty:
-        # Using data_editor with hide_index=True drops the system row indices 
-        # but displays our curated 'Rank' column perfectly
-        st.data_editor(filtered_players_table, use_container_width=True, hide_index=True, disabled=True)
+        # Added fixed height restriction (400px) so the list stays safely contained
+        st.data_editor(
+            filtered_players_table, 
+            use_container_width=True, 
+            hide_index=True, 
+            disabled=True, 
+            height=400
+        )
     else:
         st.info("No players match the selected filter configuration.")
 else:
