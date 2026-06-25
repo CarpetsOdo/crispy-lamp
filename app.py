@@ -215,7 +215,7 @@ plt.close(fig)
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING (WITH MAX HEIGHT BOUNDS)
+# DISPLAY: ALL PLAYERS RANKING (FORCED CONTAINER BOUNDS)
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
@@ -233,12 +233,11 @@ if not all_players_table.empty:
     filtered_players_table = all_players_table[all_players_table["Team"].isin(selected_teams)]
     
     if not filtered_players_table.empty:
-        # Added fixed height restriction (400px) so the list stays safely contained
-        st.data_editor(
+        # Swapped to st.dataframe with strict height enforcement
+        st.dataframe(
             filtered_players_table, 
             use_container_width=True, 
             hide_index=True, 
-            disabled=True, 
             height=400
         )
     else:
