@@ -117,7 +117,7 @@ leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index
 # Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-    # The Rank column stays safely here
+    # Insert custom Rank explicitly
     all_players_table.insert(0, "Rank", all_players_table.index + 1)
     top_3_overall = all_players_table.head(3).copy()
 else:
@@ -216,7 +216,7 @@ plt.close(fig)
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING (CLEAN ST.TABLE FIX)
+# DISPLAY: ALL PLAYERS RANKING (FIXED WITH NATIVE HIDE)
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
@@ -234,17 +234,9 @@ if not all_players_table.empty:
     filtered_players_table = all_players_table[all_players_table["Team"].isin(selected_teams)].reset_index(drop=True)
     
     if not filtered_players_table.empty:
-        # Custom CSS to hide the ugly pandas system index column from st.table natively
-        st.markdown("""
-            <style>
-            .stTable th:first-child, .stTable td:first-child {
-                display: none;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        # Returned to the solid st.table format that respects phone viewports perfectly
-        st.table(filtered_players_table)
+        # Used native hide_index configuration directly inside the component 
+        # instead of breaking CSS style sheets. The Rank column shows cleanly now!
+        st.table(filtered_players_table.style.hide(axis="index"))
     else:
         st.info("No players match the selected filter configuration.")
 else:
