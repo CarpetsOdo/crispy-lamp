@@ -117,7 +117,8 @@ leaders_table = leaders_df.sort_values(by="Points", ascending=False).reset_index
 # Process Global Rankings
 if not all_players_df.empty:
     all_players_table = all_players_df.sort_values(by="Points", ascending=False).reset_index(drop=True)
-    all_players_table.index += 1
+    # Add an explicit Rank column so position stays intact regardless of index formatting
+    all_players_table.insert(0, "Rank", all_players_table.index + 1)
     top_3_overall = all_players_table.head(3).copy()
 else:
     all_players_table = pd.DataFrame()
@@ -215,16 +216,14 @@ plt.close(fig)
 
 
 # -----------------------------
-# DISPLAY: ALL PLAYERS RANKING (WITH FILTERS)
+# DISPLAY: ALL PLAYERS RANKING (WITH FILTERS & RANKS)
 # -----------------------------
 st.markdown("---")
 st.subheader("👥 All Players Ranking")
 
 if not all_players_table.empty:
-    # Extract existing team options dynamically
     team_options = sorted(all_players_table["Team"].unique())
     
-    # Create multi-select filters panel
     selected_teams = st.multiselect(
         "Filter by Team:",
         options=team_options,
@@ -232,11 +231,12 @@ if not all_players_table.empty:
         placeholder="Choose one or more teams..."
     )
     
-    # Apply conditions to create filtered dataframe view
     filtered_players_table = all_players_table[all_players_table["Team"].isin(selected_teams)]
     
     if not filtered_players_table.empty:
-        st.table(filtered_players_table)
+        # Using data_editor with hide_index=True drops the system row indices 
+        # but displays our curated 'Rank' column perfectly
+        st.data_editor(filtered_players_table, use_container_width=True, hide_index=True, disabled=True)
     else:
         st.info("No players match the selected filter configuration.")
 else:
