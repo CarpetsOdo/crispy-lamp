@@ -16,7 +16,7 @@ GROUPS = {
 
 TEAM_COLORS = {
     "Alfacinhas FC": "#1f77b4",
-    "Os Magmáticos": "#DC3545",
+    "Os Magmáticos": "#dc3545",
     "Treinadores de Bancada": "#2ca02c"
 }
 
